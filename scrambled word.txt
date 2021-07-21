@@ -1,0 +1,318 @@
+package scrambledword;
+
+import java.util.Scanner;
+import java.util.Random; 
+import systems.kinau.gommecoingenerator.auth.AuthData;
+import systems.kinau.gommecoingenerator.auth.Authenticator;
+
+public class ScrambledWord
+{
+
+    public static String originalWord;
+    public static String rndWord = "";
+    public static int points = 0;
+    public static boolean Access = false;
+    public static boolean Multi = false;
+    public static boolean Daily = false;
+    public static boolean login = false;
+    private AuthData authData;
+    
+	public static void main(String[] args) 
+	{
+		showMenu();	
+	}//closes main
+	
+	public static void showMenu() 
+	//displays a menu and keeps displaying until user chooses the QUIT option
+	{
+		int userChoice;
+		Scanner myScan = new Scanner (System.in);
+		do
+		{
+                        System.out.println();
+			System.out.println("1. Scramble my word");
+			System.out.println("2. This option will quit the program");
+                        System.out.println("3. Guess the word game");
+                        System.out.println("4. This takes you to the shop");
+                        System.out.println("5. Lotto game");
+                        System.out.println("6. Daily Bonus");
+			System.out.println("Please enter a menu choice");
+                        System.out.println();
+			userChoice = myScan.nextInt();
+
+				switch (userChoice)
+				{
+				case 1:
+					{
+						methodCall(); // call the method
+						break;
+					}
+                                        
+                                case 2: 
+                                        {
+                                                System.out.println("goodbye");
+                                                break;
+                                        }        
+	
+                                case 3:
+                                        {
+                                                GuessWord();
+                                        }    
+                                   
+                                case 4:
+                                        {
+                                                Shop();
+                                        }
+                                case 5:
+                                        {
+                                            if(Access == true){
+                                                Lotto();
+                                            }
+                                            else if(Access != true) {
+                                                System.out.println("You do not have access to this, buy it in the shop for 3 points");
+                                            }
+                                        }
+                                
+                                case 6:{
+                                            if(Daily == true){
+                                                Daily();
+                                            }
+                                        }
+                                
+				default:
+				 	{
+                                            System.out.println("not a valid choice");
+				 	}
+				}//closes switch
+		}while(userChoice!=2);
+		myScan.close();
+		
+	}//closes showMenu
+        
+       
+    public static String methodCall(){
+     
+     
+        System.out.print("Please enter word: ");
+        Scanner scan1 = new Scanner(System.in);
+        originalWord = scan1.next();
+        String output = "";
+        int length = originalWord.length();
+        
+        Random rnd = new Random();
+        
+        String selectedIndexes = "";
+        for(int loopy = 1; loopy <= length; loopy++)
+        {
+            int index = rnd.nextInt(length);
+            while(selectedIndexes.contains("_" + index + "_"))
+            {
+                index = rnd.nextInt(length);
+            }
+            selectedIndexes = selectedIndexes + "_" + index + "_";
+            output = output + originalWord.charAt(index);
+        }       
+        System.out.println("Output: " + output);
+    
+         rndWord = output;
+         
+         return rndWord;
+      }
+    
+    public static void GuessWord(){
+       
+        String GuessedWord = "";
+        String defaultword = "Banana";
+        int Attempts = 0;
+        boolean done = false;
+        Scanner C1 = new Scanner(System.in);
+        if(rndWord.equals("")){
+            originalWord = defaultword;
+        }
+        
+        do{
+        System.out.println("Guess my word, Type Done to Quit");
+        GuessedWord = C1.next();
+        if(GuessedWord.equals(originalWord)){
+            Attempts = Attempts + 1;
+            System.out.println("Congrats you guessed the word in " + Attempts + " Attempts, you gained 1 point!");
+            if(Multi == true){ 
+            points = points + 2;
+            }
+            else if(Multi == false){
+            points = points + 1;
+            }
+            System.out.println("Thanks for playing!");
+        }
+        else if(!GuessedWord.equals(originalWord)){
+            Attempts = Attempts + 1;
+            System.out.println("Unlucky, that isn't the correct answer");
+        }
+        else if(GuessedWord.equals("Done")){
+            System.out.println("Thanks for playing! You took " + Attempts + " Attempts");
+            done = true;
+        }
+        }while(!GuessedWord.equals(originalWord) || (done = true));       
+    }
+    
+    public static void Shop(){
+        int UserInput;
+        Scanner C1 = new Scanner(System.in);
+        System.out.println();
+        System.out.println("Welcome to the shop. What would you like to buy? Type 4 to return to the menu");
+        System.out.println();
+        System.out.println("1. Access to lotto game in menu (option 5) - 3 points");
+        System.out.println("2. 2x point multiplier in all modes - 10 points");
+        System.out.println("3. Daily bonus in menu (option 6, awards 5 points every 24 hours) - 25 points");
+        System.out.println("Please enter a item no");
+        UserInput = C1.nextInt();
+        do{
+            switch(UserInput){
+                case 1:{
+                    AccessLotto();
+                }
+                
+                case 2:{
+                    Multiplier();
+                }
+                
+                case 3:{
+                   DBonus();
+                }
+                
+                case 4:{
+                    showMenu();
+                }
+            }
+        }while(UserInput != 4);
+                     
+    }
+       
+    public static boolean AccessLotto(){
+   
+        int cost = 3;
+        if((Access == false) && (points >= cost)){
+            System.out.println();
+            System.out.println("You purchased the lotto game");
+            points = points - cost;
+            Access = true;
+        }
+        else if(Access == true){
+            System.out.println();
+            System.out.println("You already own this game");
+        }
+        else if((Access == false) && (points < cost)){
+            System.out.println("Sorry you don't have enough points");
+        }
+        
+        return Access;
+    }
+    
+    public static void Lotto(){
+        
+        int min = 1, max = 49, slots = 6;
+        Random rnd = new Random();
+        int lottoNumber[] = new int[slots];
+       boolean isRepeated;
+       int randomNumber = 0;
+       
+       for (int indexDrawn = 0; indexDrawn < slots; indexDrawn++){
+           do{
+               isRepeated = false;
+               //1 to 49
+               randomNumber = rnd.nextInt(max + 1 - min) + min;
+               //check for repeated number against 
+               //the filled non-zero elements
+               for (int k = 0; k <= indexDrawn; k++){
+                   //check against each filled non-zero elemetns
+                   //hope that none repeats the random number
+                   if (lottoNumber[k] == randomNumber){
+                       isRepeated = true;
+                       break;
+                   }
+               }
+           }while(isRepeated);
+           lottoNumber[indexDrawn] = randomNumber;
+       }
+       Arrays.sort(lottoNumber);
+        System.out.println("The result of the lottery:");
+        for (int i = 0; i < slots; i++){
+            System.out.println(lottoNumber[i] + " ");
+        }
+    }
+    
+    public static boolean Multiplier(){
+        
+        int cost = 10;
+        if ((Multi == false) && (points >= cost)){
+            System.out.println();
+            System.out.println("You purachased the 2x multiplier");
+            points = points - cost;
+            Multi = true;
+        }
+        else if(Multi == true){
+            System.out.println();
+            System.out.println("You already own this item");
+        }
+        else if((Multi == false) && (points <= cost)){
+            System.out.println("Sorry you dont have enough points");
+        }
+        
+        return Multi;
+    }
+    
+    public static boolean DBonus(){
+        
+        int cost = 25;
+        if ((Daily == false) && (points >= cost)){
+            System.out.println();
+            System.out.println("You purchased the daily bonus");
+            points = points - cost;
+            Daily = true;
+        }
+        else if(Daily == true){
+            System.out.println();
+            System.out.println("You already own this item");
+        }
+        else if((Daily == false) && (points <= cost)){
+            System.out.println("Sorry you don't have enough points");
+            
+        }
+        
+        return Daily;
+    }
+    
+    public static void Daily(){
+        
+        boolean claimed = false;   
+        int reset;
+        
+        if((claimed == false)){
+            System.out.println("you have received your daily bonus");
+            claimed = true; 
+        }
+        
+        if ((claimed == true)){
+            
+        }
+        
+      private boolean authenticate() {
+        Authenticator authenticator = new Authenticator(getConfig().getUserName(), getConfig().getPassword());
+        AuthData authData = authenticator.authenticate();
+        if(authData == null) {
+            setAuthData(new AuthData(null, null, null, getConfig().getUserName()));
+            return false;
+        }
+        setAuthData(authData);
+        return true;
+    }
+      
+     
+      
+      
+      
+      
+    }
+    
+    
+}//closes class
